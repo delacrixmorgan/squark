@@ -54,7 +54,7 @@ class SettingsListFragment : Fragment() {
         }
 
         creditsViewGroup.setOnClickListener {
-            val launchIntent = CreditActivity.newLaunchIntent(view.context)
+            val launchIntent = CreditActivity.create(view.context)
             startActivity(launchIntent)
         }
 

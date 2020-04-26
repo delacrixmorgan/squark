@@ -8,23 +8,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import com.delacrixmorgan.squark.R
+import com.delacrixmorgan.squark.common.Keys
 import com.delacrixmorgan.squark.ui.preference.country.CountryListFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_preference_navigation.*
+import kotlinx.serialization.UnstableDefault
 
+@UnstableDefault
 class PreferenceNavigationActivity : AppCompatActivity(),
     BottomNavigationView.OnNavigationItemSelectedListener {
     companion object {
-        const val EXTRA_RESULT_COUNTRY_CODE = "countryCode"
-
-        fun newLaunchIntent(context: Context, countryCode: String? = null): Intent {
-            val launchIntent = Intent(context, PreferenceNavigationActivity::class.java)
-
-            countryCode?.let {
-                launchIntent.putExtra(EXTRA_RESULT_COUNTRY_CODE, it)
+        fun create(context: Context, countryCode: String? = null): Intent {
+            return Intent(context, PreferenceNavigationActivity::class.java).apply {
+                putExtra(Keys.Country.Code.name, countryCode)
             }
-
-            return launchIntent
         }
     }
 
@@ -34,17 +31,16 @@ class PreferenceNavigationActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_preference_navigation)
 
-        if (this.intent.extras != null) {
-            this.countryCode = this.intent.getStringExtra(EXTRA_RESULT_COUNTRY_CODE)
+        if (intent.extras != null) {
+            countryCode = intent.getStringExtra(Keys.Country.Code.name)
         }
 
-        this.bottomNavigationView.setOnNavigationItemSelectedListener(this)
-        this.bottomNavigationView.selectedItemId = R.id.itemCountries
+        bottomNavigationView.setOnNavigationItemSelectedListener(this)
+        bottomNavigationView.selectedItemId = R.id.itemCountries
     }
 
     override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
-        val existingFragment =
-            this.supportFragmentManager.findFragmentById(this.contentContainer.id)
+        val existingFragment = supportFragmentManager.findFragmentById(this.contentContainer.id)
         val targetFragment: Fragment = when (menuItem.itemId) {
             R.id.itemCountries -> CountryListFragment.create(this.countryCode)
             R.id.itemSupport -> SupportListFragment.create()
@@ -57,7 +53,7 @@ class PreferenceNavigationActivity : AppCompatActivity(),
         }
 
         supportFragmentManager.commit(allowStateLoss = true) {
-            replace(this@PreferenceNavigationActivity.contentContainer.id, targetFragment)
+            replace(contentContainer.id, targetFragment)
         }
 
         return true

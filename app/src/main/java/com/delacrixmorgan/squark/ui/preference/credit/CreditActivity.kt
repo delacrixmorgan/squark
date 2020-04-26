@@ -9,7 +9,7 @@ import com.delacrixmorgan.squark.R
 
 class CreditActivity : AppCompatActivity() {
     companion object {
-        fun newLaunchIntent(context: Context) = Intent(context, CreditActivity::class.java)
+        fun create(context: Context) = Intent(context, CreditActivity::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

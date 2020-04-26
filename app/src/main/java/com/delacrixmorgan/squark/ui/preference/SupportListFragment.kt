@@ -19,7 +19,11 @@ class SupportListFragment : Fragment() {
         fun create() = SupportListFragment()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_support_list, container, false)
     }
 
@@ -27,28 +31,28 @@ class SupportListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val packageName = view.context.packageName
 
-        this.starImageView.setOnClickListener {
-            this.starImageView.performHapticContextClick()
-            this.personImageView.setImageResource(R.drawable.ic_human_happy)
-            this.starImageView.setColorFilter(ContextCompat.getColor(view.context, R.color.colorAccent))
+        starImageView.setOnClickListener {
+            starImageView.performHapticContextClick()
+            personImageView.setImageResource(R.drawable.ic_human_happy)
+            starImageView.setColorFilter(ContextCompat.getColor(view.context, R.color.colorAccent))
 
-            view.context.launchPlayStore(packageName)
+            launchPlayStore(packageName)
         }
 
-        this.rateButton.setOnClickListener {
-            this.rateButton.performHapticContextClick()
-            this.personImageView.setImageResource(R.drawable.ic_human_happy)
-            view.context.launchPlayStore(packageName)
+        rateButton.setOnClickListener {
+            rateButton.performHapticContextClick()
+            personImageView.setImageResource(R.drawable.ic_human_happy)
+            launchPlayStore(packageName)
         }
 
-        this.kingscupViewGroup.setOnClickListener {
-            this.kingscupViewGroup.performHapticContextClick()
-            view.context.launchPlayStore(KINGS_CUP_PACKAGE_NAME)
+        kingscupViewGroup.setOnClickListener {
+            kingscupViewGroup.performHapticContextClick()
+            launchPlayStore(KINGS_CUP_PACKAGE_NAME)
         }
 
-        this.mamikaViewGroup.setOnClickListener {
-            this.kingscupViewGroup.performHapticContextClick()
-            view.context.launchPlayStore(MAMIKA_PACKAGE_NAME)
+        mamikaViewGroup.setOnClickListener {
+            kingscupViewGroup.performHapticContextClick()
+            launchPlayStore(MAMIKA_PACKAGE_NAME)
         }
     }
 }

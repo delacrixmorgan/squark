@@ -67,7 +67,7 @@ fun String.toDateFormat(): Date {
 /**
  * Context
  */
-fun Context.launchPlayStore(packageName: String) {
+fun Fragment.launchPlayStore(packageName: String) {
     val url = "https://play.google.com/store/apps/details?id=$packageName"
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
 

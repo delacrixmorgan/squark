@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlinVersion = '1.3.71'
+        kotlinVersion = '1.3.72'
     }
 
     repositories {
@@ -15,7 +15,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion"
         classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlinVersion"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.3.0-alpha03"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.2.2"
     }
 }
 

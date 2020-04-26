@@ -22,14 +22,15 @@ import com.delacrixmorgan.squark.data.dao.CountryDatabase
 import com.delacrixmorgan.squark.data.model.Country
 import com.delacrixmorgan.squark.data.model.Currency
 import com.delacrixmorgan.squark.data.service.SquarkService
-import com.delacrixmorgan.squark.ui.currency.CurrencyFragment
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_country_list.*
 import kotlinx.coroutines.launch
+import kotlinx.serialization.UnstableDefault
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import java.util.*
 import java.util.concurrent.TimeUnit
 
+@UnstableDefault
 class CountryListFragment : Fragment(), CountryListListener, MenuItem.OnActionExpandListener {
     companion object {
         fun create(countryCode: String? = null) = CountryListFragment().apply {
@@ -127,25 +128,23 @@ class CountryListFragment : Fragment(), CountryListListener, MenuItem.OnActionEx
         }
     }
 
-    private fun updateCurrencies(currencies: List<Currency>) {
-        lifecycleScope.launch {
-            database?.countryDataDao()?.getCountries()?.let { countries ->
-                countries.forEach { country ->
-                    currencies.firstOrNull { it.code == countryCode }?.let {
-                        country.rate = it.rate
-                        database?.countryDataDao()?.updateCountry(country)
-                    }
-                }
-                CountryDataController.updateDataSet(countries)
-                SharedPreferenceHelper.lastUpdatedDate = Date()
+    private suspend fun updateCurrencies(currencies: List<Currency>) {
+        val countries = database?.countryDataDao()?.getCountries() ?: listOf()
+        countries.forEach { country ->
+            currencies.firstOrNull { it.code == country.code }?.let {
+                country.rate = it.rate
+                database?.countryDataDao()?.updateCountry(country)
             }
-            if (isVisible) {
-                Snackbar.make(
-                    mainContainer,
-                    getString(R.string.fragment_country_list_title_updated),
-                    Snackbar.LENGTH_SHORT
-                ).show()
-            }
+        }
+        CountryDataController.updateDataSet(countries)
+        SharedPreferenceHelper.lastUpdatedDate = Date()
+
+        if (isVisible) {
+            Snackbar.make(
+                mainContainer,
+                getString(R.string.fragment_country_list_title_updated),
+                Snackbar.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -172,7 +171,7 @@ class CountryListFragment : Fragment(), CountryListListener, MenuItem.OnActionEx
         val activity = requireActivity()
         val intent = Intent()
 
-        intent.putExtra(CurrencyFragment.EXTRA_COUNTRY_CODE, country.code)
+        intent.putExtra(Keys.Country.Code.name, country.code)
 
         activity.setResult(Activity.RESULT_OK, intent)
         activity.finish()

@@ -12,6 +12,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.delacrixmorgan.squark.R
+import com.delacrixmorgan.squark.common.Keys
 import com.delacrixmorgan.squark.common.RowListener
 import com.delacrixmorgan.squark.common.SharedPreferenceHelper
 import com.delacrixmorgan.squark.common.performHapticContextClick
@@ -25,8 +26,6 @@ class CurrencyFragment : Fragment(), RowListener {
     companion object {
         private const val REQUEST_BASE_COUNTRY = 1
         private const val REQUEST_QUOTE_COUNTRY = 2
-
-        const val EXTRA_COUNTRY_CODE = "CurrencyNavigationFragment.countryCode"
     }
 
     private var isExpanded = false
@@ -76,7 +75,7 @@ class CurrencyFragment : Fragment(), RowListener {
         )
 
         baseCurrencyTextView.setOnClickListener {
-            val currencyIntent = PreferenceNavigationActivity.newLaunchIntent(
+            val currencyIntent = PreferenceNavigationActivity.create(
                 view.context,
                 countryCode = baseCountry?.code
             )
@@ -87,7 +86,7 @@ class CurrencyFragment : Fragment(), RowListener {
         }
 
         quoteCurrencyTextView.setOnClickListener {
-            val currencyIntent = PreferenceNavigationActivity.newLaunchIntent(
+            val currencyIntent = PreferenceNavigationActivity.create(
                 view.context,
                 countryCode = quoteCountry?.code
             )
@@ -124,7 +123,7 @@ class CurrencyFragment : Fragment(), RowListener {
 
         when (requestCode) {
             REQUEST_BASE_COUNTRY -> {
-                val countryCode = data?.getStringExtra(EXTRA_COUNTRY_CODE)
+                val countryCode = data?.getStringExtra(Keys.Country.Code.name)
                 SharedPreferenceHelper.baseCurrency = countryCode
 
                 if (isExpanded) onRowCollapse()
@@ -132,7 +131,7 @@ class CurrencyFragment : Fragment(), RowListener {
             }
 
             REQUEST_QUOTE_COUNTRY -> {
-                val countryCode = data?.getStringExtra(EXTRA_COUNTRY_CODE)
+                val countryCode = data?.getStringExtra(Keys.Country.Code.name)
                 SharedPreferenceHelper.quoteCurrency = countryCode
 
                 if (isExpanded) onRowCollapse()

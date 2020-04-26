@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.delacrixmorgan.squark.R
+import com.delacrixmorgan.squark.common.performHapticContextClick
 import com.delacrixmorgan.squark.data.model.Country
 import kotlinx.android.synthetic.main.cell_country.view.*
 import me.zhanghai.android.fastscroll.PopupTextProvider
@@ -80,6 +81,7 @@ class CountryRecyclerViewAdapter(private val listener: CountryListListener) :
 
             cellViewGroup.setOnClickListener {
                 listener.onCountrySelected(country)
+                performHapticContextClick()
             }
         }
 

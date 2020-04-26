@@ -22,10 +22,12 @@ import kotlinx.android.synthetic.main.fragment_launch.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.UnstableDefault
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 @UnstableDefault
 class LaunchFragment : Fragment() {
     private var countryDatabaseDao: CountryDataDao? = null
+    private var countries = listOf<Country>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,13 +41,25 @@ class LaunchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         lifecycleScope.launch {
             countryDatabaseDao = CountryDatabase.getInstance(requireContext())?.countryDataDao()
-            val countries = countryDatabaseDao?.getCountries()
+            countries = countryDatabaseDao?.getCountries() ?: listOf()
+
             if (!countries.isNullOrEmpty()) {
-                CountryDataController.updateDataSet(countries)
-                launchCurrencyNavigationFragment()
+                populateCountries()
             } else {
                 fetchCountries()
             }
+        }
+    }
+
+    private fun populateCountries() {
+        val lastUpdatedDateTime = SharedPreferenceHelper.lastUpdatedDate.time
+        val currentDateTime = Date().time
+
+        if (TimeUnit.MILLISECONDS.toDays(currentDateTime - lastUpdatedDateTime) >= 1) {
+            updateCurrencyRates()
+        } else {
+            CountryDataController.updateDataSet(countries)
+            launchCurrencyNavigationFragment()
         }
     }
 
@@ -77,6 +91,26 @@ class LaunchFragment : Fragment() {
         }
     }
 
+    private fun updateCurrencyRates() {
+        lifecycleScope.launch {
+            when (val result = SquarkService.getCurrencies()) {
+                is SquarkResult.Success -> {
+                    updateCurrencies(result.value.currencies)
+                }
+                is SquarkResult.Failure -> {
+                    val currencies = fetchFallbackCurrencies()
+                    addCountryDatabase(currencies)
+
+                    Snackbar.make(
+                        mainContainer,
+                        getString(R.string.error_api_countries),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
     private fun fetchFallbackCurrencies(): List<Currency> {
         return requireContext().getJsonMap(R.raw.data_currency, "quotes")
             .map { Currency(code = it.key, rate = it.value.toDouble()) }
@@ -93,6 +127,27 @@ class LaunchFragment : Fragment() {
 
         SharedPreferenceHelper.lastUpdatedDate = Date()
         launchCurrencyNavigationFragment()
+    }
+
+    private suspend fun updateCurrencies(currencies: List<Currency>) {
+        countries.forEach { country ->
+            currencies.firstOrNull { it.code == country.code }?.let {
+                country.rate = it.rate
+                countryDatabaseDao?.updateCountry(country)
+            }
+        }
+
+        if (isVisible) {
+            Snackbar.make(
+                mainContainer,
+                getString(R.string.fragment_country_list_title_updated),
+                Snackbar.LENGTH_SHORT
+            ).show()
+        }
+
+        SharedPreferenceHelper.lastUpdatedDate = Date()
+        CountryDataController.updateDataSet(countries)
+        populateCountries()
     }
 
     private fun launchCurrencyNavigationFragment() {
