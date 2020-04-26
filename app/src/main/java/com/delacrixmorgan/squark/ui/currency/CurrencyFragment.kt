@@ -14,7 +14,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.delacrixmorgan.squark.R
 import com.delacrixmorgan.squark.common.RowListener
 import com.delacrixmorgan.squark.common.SharedPreferenceHelper
-import com.delacrixmorgan.squark.common.getPreferenceCountry
 import com.delacrixmorgan.squark.common.performHapticContextClick
 import com.delacrixmorgan.squark.data.controller.CountryDataController
 import com.delacrixmorgan.squark.data.model.Country
@@ -32,7 +31,17 @@ class CurrencyFragment : Fragment(), RowListener {
 
     private var isExpanded = false
     private var baseCountry: Country? = null
+        set(value) {
+            field = value
+            baseCurrencyTextView.text = value?.code
+            quoteCurrencyTextView.text = quoteCountry?.code
+
+        }
     private var quoteCountry: Country? = null
+        set(value) {
+            field = value
+            quoteCurrencyTextView.text = value?.code
+        }
 
     private var rowList = arrayListOf<TableRow>()
     private var expandedList = arrayListOf<TableRow>()
@@ -102,20 +111,11 @@ class CurrencyFragment : Fragment(), RowListener {
     }
 
     private fun updateTable() {
-        baseCountry = CountryDataController.getPreferenceCountry(
-            requireContext(), SharedPreferenceHelper.baseCurrency
-        )
-        quoteCountry = CountryDataController.getPreferenceCountry(
-            requireContext(), SharedPreferenceHelper.quoteCurrency
-        )
+        baseCountry = CountryDataController.getCountryByCode(SharedPreferenceHelper.baseCurrency)
+        quoteCountry = CountryDataController.getCountryByCode(SharedPreferenceHelper.quoteCurrency)
 
-        baseCurrencyTextView.text = baseCountry?.code
-        quoteCurrencyTextView.text = quoteCountry?.code
-
-        if (baseCountry?.rate != 0.0 && quoteCountry?.rate != 0.0) {
-            viewModel.updateConversionRate(baseCountry?.rate, quoteCountry?.rate)
-            viewModel.updateTable(rowList)
-        }
+        viewModel.updateConversionRate(baseCountry?.rate, quoteCountry?.rate)
+        viewModel.updateTable(rowList)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

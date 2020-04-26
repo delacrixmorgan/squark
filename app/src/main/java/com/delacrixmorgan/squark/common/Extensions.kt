@@ -8,12 +8,7 @@ import android.view.HapticFeedbackConstants
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.preference.PreferenceManager
 import com.delacrixmorgan.squark.R
-import com.delacrixmorgan.squark.common.SharedPreferenceHelper.DEFAULT_BASE_CURRENCY_CODE
-import com.delacrixmorgan.squark.common.SharedPreferenceHelper.DEFAULT_QUOTE_CURRENCY_CODE
-import com.delacrixmorgan.squark.data.controller.CountryDataController
-import com.delacrixmorgan.squark.data.model.Country
 import org.json.JSONObject
 import org.threeten.bp.DateTimeUtils
 import org.threeten.bp.Instant
@@ -106,36 +101,6 @@ fun Context.getJsonMap(rawFile: Int, key: String): Map<String, String> {
     }
 
     return map
-}
-
-/**
- * CountryDataController
- */
-fun CountryDataController.getPreferenceCountry(
-    context: Context,
-    preferenceCurrency: String?
-): Country? {
-    val preferenceManager = PreferenceManager.getDefaultSharedPreferences(context)
-    val fallbackCurrency = if (preferenceCurrency == SharedPreferenceHelper.baseCurrency) {
-        DEFAULT_BASE_CURRENCY_CODE
-    } else {
-        DEFAULT_QUOTE_CURRENCY_CODE
-    }
-
-    return getCountries().firstOrNull {
-        it.code == preferenceManager.getString(preferenceCurrency, fallbackCurrency)
-    }
-}
-
-fun CountryDataController.getFilteredCountries(
-    searchText: String?
-) = if (searchText.isNullOrBlank()) {
-    getCountries()
-} else {
-    val text: String = searchText.toLowerCase()
-    getCountries().filter {
-        it.name.toLowerCase().contains(text) || it.code.toLowerCase().contains(text)
-    }
 }
 
 /**

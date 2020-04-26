@@ -18,10 +18,10 @@ object SharedPreferenceHelper {
         Multiplier
     }
 
-    const val DEFAULT_BASE_CURRENCY_CODE = "USD"
+    private const val DEFAULT_BASE_CURRENCY_CODE = "USD"
     private const val DEFAULT_QUOTE_FALLBACK_CURRENCY_CODE = "MYR"
 
-    val DEFAULT_QUOTE_CURRENCY_CODE: String
+    private val DEFAULT_QUOTE_CURRENCY_CODE: String
         get() {
             val currentLocale = ConfigurationCompat.getLocales(
                 App.appContext.resources.configuration

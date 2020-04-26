@@ -1,6 +1,7 @@
 package com.delacrixmorgan.squark.ui.preference.country
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.*
@@ -11,7 +12,10 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.delacrixmorgan.squark.R
-import com.delacrixmorgan.squark.common.*
+import com.delacrixmorgan.squark.common.Keys
+import com.delacrixmorgan.squark.common.SharedPreferenceHelper
+import com.delacrixmorgan.squark.common.compatColor
+import com.delacrixmorgan.squark.common.performHapticContextClick
 import com.delacrixmorgan.squark.data.api.SquarkResult
 import com.delacrixmorgan.squark.data.controller.CountryDataController
 import com.delacrixmorgan.squark.data.dao.CountryDatabase
@@ -125,22 +129,16 @@ class CountryListFragment : Fragment(), CountryListListener, MenuItem.OnActionEx
 
     private fun updateCurrencies(currencies: List<Currency>) {
         lifecycleScope.launch {
-            val countries = database?.countryDataDao()?.getCountries()
-            countries?.forEach { country ->
-                val updateCurrency = currencies.find {
-                    it.code.contains(country.code)
+            database?.countryDataDao()?.getCountries()?.let { countries ->
+                countries.forEach { country ->
+                    currencies.firstOrNull { it.code == countryCode }?.let {
+                        country.rate = it.rate
+                        database?.countryDataDao()?.updateCountry(country)
+                    }
                 }
-
-                updateCurrency?.let {
-                    country.rate = it.rate
-                    database?.countryDataDao()?.updateCountry(country)
-                }
-            }
-            countries?.let {
-                CountryDataController.updateDataSet(it)
+                CountryDataController.updateDataSet(countries)
                 SharedPreferenceHelper.lastUpdatedDate = Date()
             }
-
             if (isVisible) {
                 Snackbar.make(
                     mainContainer,
@@ -172,7 +170,7 @@ class CountryListFragment : Fragment(), CountryListListener, MenuItem.OnActionEx
 
     override fun onCountrySelected(country: Country) {
         val activity = requireActivity()
-        val intent = activity.intent
+        val intent = Intent()
 
         intent.putExtra(CurrencyFragment.EXTRA_COUNTRY_CODE, country.code)
 
